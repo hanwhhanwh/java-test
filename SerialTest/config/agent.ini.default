@@ -1,0 +1,8 @@
+[Log]
+folder=./log
+level=debug
+
+
+[Serial]
+PORT=COM5
+BAUDRATE=115200

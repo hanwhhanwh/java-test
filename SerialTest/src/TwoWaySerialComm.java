@@ -6,18 +6,32 @@ import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import java.util.Properties;
+
+
 public class TwoWaySerialComm
 {
+	/** 기본 접속할 시리얼 포트 */
+	final static String DEFAULT_COM_PORT = "COM5";
+	/** 기본 baudrate 값 : 115200 */
+	final static int DEFAULT_BAUDRATE = 115200;
+
     public TwoWaySerialComm()
     {
         super();
     }
     
+    
+    /** 지정한 시리얼 포트와 접속을 시도합니다.
+     * @param portName 시리얼 포트 이름. ex: "COM5", "/dev/serial0"
+     */
     void connect ( String portName ) throws Exception
     {
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
@@ -106,14 +120,33 @@ public class TwoWaySerialComm
         }
     }
     
-    public static void main ( String[] args )
-    {
-        try
-        {
-            (new TwoWaySerialComm()).connect("COM5");
+    public static void main ( String[] args ) {
+        try {
+        	Properties prop = new Properties();
+            
+        	String strConfigFileName = System.getProperty("user.dir") + "/config/agent.ini";
+        	String strComPort = DEFAULT_COM_PORT;
+        	int nBaudRate = 115200;
+        	String strLogLevel = "debug";
+        	String strLogFolder = "./log";
+        	File file = new File(strConfigFileName);
+        	if (file.exists()) {
+	            prop.load(new FileInputStream(strConfigFileName));
+	            
+	            strComPort = prop.getProperty("COM_PORT", DEFAULT_COM_PORT);
+	            try { nBaudRate = Integer.parseInt(prop.getProperty("BAUDRATE"), DEFAULT_BAUDRATE); } catch (Exception e) {}
+	            strLogLevel = prop.getProperty("LOG_LEVEL");
+	            strLogFolder = prop.getProperty("LOG_FOLDER");
+
+	            System.out.println("COM_PORT = " + strComPort);
+	            System.out.println("BAUDRATE = " + nBaudRate);
+	            System.out.println("LOG_LEVEL = " + strLogLevel);
+	            System.out.println("LOG_FOLDER = " + strLogFolder);
+        	}
+
+            (new TwoWaySerialComm()).connect(strComPort);
         }
-        catch ( Exception e )
-        {
+        catch ( Exception e ) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
